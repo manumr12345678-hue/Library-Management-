@@ -1,51 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="home.css">
-    <script>
-  document.addEventListener("DOMContentLoaded", () => {displayCollegeName();});
-    </script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Library Home</title>
+<link rel="stylesheet" href="home.css">
 </head>
 <body>
+  <!-- HEADER -->
   <div class="header">
-    <div class="username">
- College Name: <span id="collegeNameDisplay"></span>
+    <div class="college-info">
+      <span>College Name: </span>
+      <span id="collegeNameDisplay"></span>
     </div>
+    <button id="aboutBtn" class="about-btn">About</button>
   </div>
 
-<div class="content">
-  <h1>Welcome to the Library Management System!</h1>
-  
-  <!-- Add Entry Button -->
-  <button class="add-entry-btn" id="addEntryFormContainer" onclick="showAddEntryForm()">Add Entry</button>
 
-  <!-- Tabs Container -->
-  <div class="tabs-container">
-    <div class="tab" id="issued-tab">
-      <h2>Issued Books</h2>
-      <ul id="issuedBooksList">
-        <!-- List of currently issued books will appear here -->
-        <li>issued on (date) see more details....</li>
-        <li></li>
-      </ul>
-    </div>
+  <div class="content">
+    <h1>Welcome to the Library Management System!</h1>
+    <button class="add-entry-btn" id="addEntryBtn">Add Entry</button>
 
-    <div id="addEntryFormContainer" style="display:none;">
-     ggbhbhgvghvhvh
+    <div class="tabs-container">
+      <div class="tab" id="issued-tab">
+        <h2>Issued Books</h2>
+        <ul id="issuedBooksList"></ul>
+      </div>
+      <div class="tab" id="returned-tab">
+        <h2>Returned Books</h2>
+        <ul id="returnedBooksList"></ul>
+      </div>
     </div>
-    <div class="tab" id="returned-tab">
-      <h2>Returned Books</h2>
-      <ul id="returnedBooksList">
-        <!-- List of returned books will appear here -->
-        <li>returned on (date) see more details....</li>
-      </ul>
-    </div>
+  </div>
+<div id="aboutModal" class="overlay" style="display:none;">
+  <div class="form-box">
+    <h2>About This Website</h2>
+    <p>This Library Management System helps colleges track issued & returned books.</p>
+    <p><b>Developer:</b> Harsh Kant, Mayank Sharma, Aarij Khan</p>
+    <button type="button" id="closeAboutBtn">Close</button>
   </div>
 </div>
 
-  <script type="module" src="script.js"></script>
+  <!-- Add Book Form -->
+<div id="addEntryFormOverlay" class="overlay" style="display:none;">
+<div class="form-box">
+  <h2>Add Details of Issue Book</h2>
+  <form id="issueBookForm">
+    <div>
+      <label for="studentName">Name</label>
+      <input type="text" id="studentName" required>
+    </div>
+    <div>
+      <label for="collegeId">College ID</label>
+      <input type="text" id="collegeId" required>
+    </div>
+    
+    <div>
+      <label for="bookName">Book Name</label>
+      <input type="text" id="bookName" required>
+    </div>
+    <div>
+      <label for="course">Course</label>
+      <input type="text" id="course" required>
+    </div>
+
+    <div>
+      <label for="section">Section</label>
+      <input type="text" id="section" required>
+    </div>
+    <div>
+      <label for="floor">Floor</label>
+      <input type="text" id="floor" required>
+    </div>
+
+    <div>
+      <label for="block">Block</label>
+      <input type="text" id="block" required>
+    </div>
+    <div>
+  <label for="returnDays">Return in (days)</label>
+  <input type="number" id="returnDays" min="1" placeholder="Enter number of days" required>
+    </div>
+
+    <button type="submit">Submit</button>
+    <button type="button" id="cancelAddEntryBtn">Cancel</button>
+  </form>
+</div>
+
+
+
+  <script type="module" src="home.js"></script>
 </body>
 </html>

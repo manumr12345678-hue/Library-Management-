@@ -7,21 +7,50 @@ body {
 
 /* Header / top navigation bar */
 .header {
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 60px;
-    background-color: #954cb7; /* green top bar */
-    color: rgb(255, 255, 255);
+    background-color: #6e49a1;
+    color: #fff;
     display: flex;
+    justify-content: space-between; /* college-info left, button right */
     align-items: center;
-    padding-left: 20px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.);
-    position: fixed;
-    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-    top: 0;
-    left: 0px;
+    padding: 0 20px;
+    box-sizing: border-box;
     z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
 }
 
+.college-info {
+    display: flex;
+    gap: 10px; /* small gap between label and value */
+    align-items: center;
+    font-weight: bold;
+    white-space: nowrap;
+}
+.header span#collegeNameDisplay {
+    font-size: 1.2rem;
+    font-weight: bold;
+    white-space: nowrap; /* prevents wrapping */
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.about-btn {
+    padding: 6px 12px;
+    background-color: #9500ff;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.about-btn:hover {
+    background-color: #7622b3;
+}
 /* Username text inside header */
 .header .username {
     font-size: 1.5rem;
@@ -222,11 +251,26 @@ body {
 .form-box button[type="button"] {
     background-color: #ff4c4c;
     color: #fff;
-    margin-left: 10px;
 }
 
 .form-box button[type="button"]:hover {
     background-color: #c42a2a;
+}
+.form-box form {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* two equal columns */
+    gap: 10px 40px; /* row gap, column gap */
+}
+
+/* Make labels above inputs in each column */
+.form-box label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+/* Make buttons span two columns */
+.form-box button {
+    grid-column: span 2;
 }
 
 /* Simple fade-in animation for modal */
@@ -258,8 +302,8 @@ body {
 .tab h2 {
     text-align: center;
     margin-bottom: 15px;
-    color: #fff;
-    font-size: 1.2rem;
+    color: #ffffff;
+    font-size: 1.5rem;
 }
 
 /* List of books */
@@ -280,11 +324,12 @@ body {
     display: flex;
     flex-direction: column;
     gap: 5px;
+    
 }
 
 /* Book info inside list item */
 .tab ul li span {
-    font-size: 0.9rem;
+    font-size: 1rem;
 }
 
 /* Return button */
@@ -310,26 +355,12 @@ body {
 }
 
 .tab ul::-webkit-scrollbar-thumb {
-    background-color: #9500ff;
+    background-color: #603380;
     border-radius: 3px;
 }
 
 .tab ul::-webkit-scrollbar-track {
     background-color: #74479b;
-}
-
-/* Overlay background */
-#addEntryFormOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.6);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
 }
 
 

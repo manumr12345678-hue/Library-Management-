@@ -1,8 +1,7 @@
-// Import Firebase modules
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
 import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
 
-// Firebase configuration
+// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyAayFLRlj8nH5DlExgtuYahM2__c17BMHI",
   authDomain: "librarymanagement-73390.firebaseapp.com",
@@ -14,149 +13,206 @@ const firebaseConfig = {
   measurementId: "G-ELGJN46Z9V"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// ------------------ Firebase Helpers ------------------
-// Write data to Firebase
-export async function writeData(path, data) {
-  await set(ref(db, path), data);
-  console.log("Data written:", data);
+// Helpers
+async function writeData(path, data) { await set(ref(db, path), data); }
+async function readData(path) { 
+  const snapshot = await get(ref(db, path)); 
+  return snapshot.exists() ? snapshot.val() : null; 
 }
 
-// Read user by college name
-export async function readUser(collegeName) {
-  try {
-    const snapshot = await get(ref(db, `users/${collegeName}`));
-    if (!snapshot.exists()) return null;
-    return snapshot.val(); // returns { password: "..." }
-  } catch (err) {
-    console.error("Error reading user:", err);
-    return null;
-  }
-}
-
-// ------------------ Login / Registration ------------------
-export async function registerUser() {
-  const usernameInput = document.getElementById("collegeName");
-  const passwordInput = document.getElementById("password");
-
-  if (!usernameInput || !passwordInput) return;
-
-  const collegeName = usernameInput.value.trim();
-  const password = passwordInput.value.trim();
-
-  if (!collegeName || !password) {
-    alert("College name and password are required.");
-    return;
-  }
-
-  const existingUser = await readUser(collegeName);
-  if (existingUser) {
-    alert("College already registered. Choose another.");
-    return;
-  }
-
-  // Save user under college name key
-  await writeData(`users/${collegeName}`, { password });
-  alert("Registration successful!");
-  localStorage.setItem("collegeName", collegeName);
-  window.location.href = "home.html";
-}
-
-export async function loginUser() {
-  const usernameInput = document.getElementById("collegeName");
-  const passwordInput = document.getElementById("password");
-
-  if (!usernameInput || !passwordInput) return;
-
-  const collegeName = usernameInput.value.trim();
-  const password = passwordInput.value.trim();
-
-  if (!collegeName || !password) {
-    alert("Enter both fields properly.");
-    return;
-  }
-
-  const user = await readUser(collegeName);
-  if (!user) {
-    alert("User not found. Please register.");
-    return;
-  }
-
-  if (user.password === password) {
-    alert("Login successful!");
-    localStorage.setItem("collegeName", collegeName);
-    window.location.href = "home.html";
-  } else {
-    alert("Incorrect password.");
-  }
-}
-
-
-// ------------------ Home Page Functions ------------------
+// Display college name
 export function displayCollegeName() {
   const span = document.getElementById("collegeNameDisplay");
-  const disname = localStorage.getItem("collegeName");
-  if (span && disname) span.textContent = disname;
+  const collegeName = localStorage.getItem("collegeName");
+  if (span && collegeName) span.textContent = collegeName;
 }
+
+// Show/Hide Form
+let currentEditId = null; // track editing
 
 function showAddEntryForm() {
-  const overlay = document.getElementById("addEntryFormOverlay");
-  if (overlay) overlay.style.display = "flex";
+  document.getElementById("addEntryFormOverlay").style.display = "flex";
+  if (!currentEditId) document.getElementById("issueBookForm").reset();
 }
 
-function hideAddEntryForm() {
-  const overlay = document.getElementById("addEntryFormOverlay");
-  if (overlay) overlay.style.display = "none";
+function hideAddEntryForm() { 
+  document.getElementById("addEntryFormOverlay").style.display = "none"; 
+  currentEditId = null;
 }
 
-// Handle "Add Entry" Form Submission
-document.addEventListener("DOMContentLoaded", () => {
-  const addBtn = document.getElementById("addEntryBtn");
-  const cancelBtn = document.getElementById("cancelAddEntryBtn");
-  const form = document.getElementById("issueBookForm");
+// Handle Issue / Edit Book
+async function handleIssueBook(e) {
+  e.preventDefault();
+  const collegeName = localStorage.getItem("collegeName");
+  if (!collegeName) return;
 
-  if (addBtn) addBtn.addEventListener("click", showAddEntryForm);
-  if (cancelBtn) cancelBtn.addEventListener("click", hideAddEntryForm);
+  const bookId = currentEditId || Date.now();
+  currentEditId = null;
 
-  if (form) {
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
+  const today = new Date();
 
-      const bookData = {
-        bookName: document.getElementById("bookName").value,
-        studentName: document.getElementById("studentName").value,
-        course: document.getElementById("course").value,
-        section: document.getElementById("section").value,
-        floor: document.getElementById("floor").value,
-        block: document.getElementById("block").value,
-        returnDate: document.getElementById("returnDate").value
-      };
+  const returnDaysInput = parseInt(document.getElementById("returnDays").value);
+  if (isNaN(returnDaysInput) || returnDaysInput < 1) { alert("Enter valid return days"); return; }
 
-      const issueDate = document.getElementById("issueDate").value; // use date as key
-      const collegeName = localStorage.getItem("collegeName");
+  const returnDate = new Date(today);
+  returnDate.setDate(today.getDate() + returnDaysInput);
+  const returnDateStr = returnDate.toISOString().split("T")[0];
 
-      if (collegeName && issueDate) {
-        const path = `users/${collegeName}/issuedBooks/${issueDate}`;
-        await writeData(path, bookData);
-        alert("Book issued successfully!");
-      }
+  const bookData = {
+    bookName: document.getElementById("bookName").value,
+    studentName: document.getElementById("studentName").value,
+    collegeId: document.getElementById("collegeId").value,
+    course: document.getElementById("course").value,
+    section: document.getElementById("section").value,
+    floor: document.getElementById("floor").value,
+    block: document.getElementById("block").value,
+    issueDate: today.toISOString().split("T")[0],
+    returnDate: returnDateStr
+  };
 
-      form.reset();
-      hideAddEntryForm();
-    });
+  await writeData(`users/${collegeName}/issuedBooks/${bookId}`, bookData);
+  alert(`Book saved successfully! Return by: ${returnDateStr}`);
+
+  e.target.reset();
+  hideAddEntryForm();
+  displayIssuedBooks();
+}
+
+// Edit Book
+function editBook(bookId, book) {
+  currentEditId = bookId;
+  showAddEntryForm();
+
+  document.getElementById("bookName").value = book.bookName;
+  document.getElementById("studentName").value = book.studentName;
+  document.getElementById("collegeId").value = book.collegeId || "";
+  document.getElementById("course").value = book.course;
+  document.getElementById("section").value = book.section;
+  document.getElementById("floor").value = book.floor;
+  document.getElementById("block").value = book.block;
+  document.getElementById("returnDays").value = "";
+}
+
+// Display Issued Books
+// Display Issued Books with Edit and Return buttons
+export async function displayIssuedBooks() {
+  const collegeName = localStorage.getItem("collegeName");
+  if (!collegeName) return;
+
+  const books = await readData(`users/${collegeName}/issuedBooks`) || {};
+  const list = document.getElementById("issuedBooksList");
+  list.innerHTML = "";
+
+  for (const bookId in books) {
+    const book = books[bookId];
+
+    const li = document.createElement("li");
+    li.classList.add("book-card");
+
+    li.innerHTML = `
+      <div><strong>Name:</strong> ${book.studentName}</div>
+      <div><strong>College ID:</strong> ${book.collegeId || ""}</div>
+      <div><strong>Book:</strong> ${book.bookName}</div>
+      <div><strong>Course:</strong> ${book.course}</div>
+      <div><strong>Section:</strong> ${book.section}</div>
+      <div><strong>Floor:</strong> ${book.floor}</div>
+      <div><strong>Block:</strong> ${book.block}</div>
+      <div><strong>Issued:</strong> ${book.issueDate}</div>
+      <div><strong>Return by:</strong> ${book.returnDate}</div>
+    `;
+
+    // Edit button
+    const editBtn = document.createElement("button");
+    editBtn.textContent = "Edit";
+    editBtn.style.marginRight = "10px";
+    editBtn.addEventListener("click", () => editBook(bookId, book));
+    li.appendChild(editBtn);
+
+    // Return button
+    const returnBtn = document.createElement("button");
+    returnBtn.textContent = "Return";
+    returnBtn.addEventListener("click", () => returnBook(bookId, book));
+    li.appendChild(returnBtn);
+
+    list.appendChild(li);
   }
+}
 
-  // Display college name if on home page
+
+// Return Book
+async function returnBook(bookId, book) {
+  const collegeName = localStorage.getItem("collegeName");
+  if (!collegeName) return;
+
+  await writeData(`users/${collegeName}/issuedBooks/${bookId}`, null);
+
+  const returnedBook = { ...book, actualReturnDate: new Date().toISOString().split("T")[0] };
+  await writeData(`users/${collegeName}/returnedBooks/${bookId}`, returnedBook);
+
+  displayIssuedBooks();
+  displayReturnedBooks();
+}
+
+// Display Returned Books
+export async function displayReturnedBooks() {
+  const collegeName = localStorage.getItem("collegeName");
+  if (!collegeName) return;
+
+  const books = await readData(`users/${collegeName}/returnedBooks`) || {};
+  const list = document.getElementById("returnedBooksList");
+  list.innerHTML = "";
+
+  for (const bookId in books) {
+    const book = books[bookId];
+
+    const li = document.createElement("li");
+    li.classList.add("book-card"); // add class for styling
+
+    li.innerHTML = `
+      <div><strong>Name:</strong> ${book.studentName}</div>
+      <div><strong>College ID:</strong> ${book.collegeId || ""}</div>
+      <div><strong>Book:</strong> ${book.bookName}</div>
+      <div><strong>Course:</strong> ${book.course}</div>
+      <div><strong>Section:</strong> ${book.section}</div>
+      <div><strong>Floor:</strong> ${book.floor}</div>
+      <div><strong>Block:</strong> ${book.block}</div>
+      <div><strong>Issued:</strong> ${book.issueDate}</div>
+      <div><strong>Returned:</strong> ${book.actualReturnDate}</div>
+    `;
+
+    list.appendChild(li);
+  }
+}
+
+// DOM listeners
+document.addEventListener("DOMContentLoaded", () => {
   displayCollegeName();
+  displayIssuedBooks();
+  displayReturnedBooks();
+
+  document.getElementById("addEntryBtn").addEventListener("click", showAddEntryForm);
+  document.getElementById("cancelAddEntryBtn").addEventListener("click", hideAddEntryForm);
+  document.getElementById("issueBookForm").addEventListener("submit", handleIssueBook);
+
+  // About modal
+  const aboutBtn = document.getElementById("aboutBtn");
+  const aboutModal = document.getElementById("aboutModal");
+  const closeAboutBtn = document.getElementById("closeAboutBtn");
+
+  aboutBtn.addEventListener("click", () => {
+    aboutModal.style.display = "flex";
+  });
+
+  closeAboutBtn.addEventListener("click", () => {
+    aboutModal.style.display = "none";
+  });
 });
 
-
-// Expose functions to HTML
-window.registerUser = registerUser;
-window.loginUser = loginUser;
-window.displayCollegeName = displayCollegeName;
+// Expose globally
 window.showAddEntryForm = showAddEntryForm;
 window.hideAddEntryForm = hideAddEntryForm;
+window.displayIssuedBooks = displayIssuedBooks;
+window.displayReturnedBooks = displayReturnedBooks;
