@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="home.css">
+    <script>
+  document.addEventListener("DOMContentLoaded", () => {displayCollegeName();});
+    </script>
+</head>
+<body>
+  <div class="header">
+    <div class="username">
+ College Name: <span id="collegeNameDisplay"></span>
+    </div>
+  </div>
+
+<div class="content">
+  <h1>Welcome to the Library Management System!</h1>
+  
+  <!-- Add Entry Button -->
+  <button class="add-entry-btn" id="addEntryFormContainer" onclick="showAddEntryForm()">Add Entry</button>
+
+  <!-- Tabs Container -->
+  <div class="tabs-container">
+    <div class="tab" id="issued-tab">
+      <h2>Issued Books</h2>
+      <ul id="issuedBooksList">
+        <!-- List of currently issued books will appear here -->
+        <li>issued on (date) see more details....</li>
+        <li></li>
+      </ul>
+    </div>
+
+    <div id="addEntryFormContainer" style="display:none;">
+     ggbhbhgvghvhvh
+    </div>
+    <div class="tab" id="returned-tab">
+      <h2>Returned Books</h2>
+      <ul id="returnedBooksList">
+        <!-- List of returned books will appear here -->
+        <li>returned on (date) see more details....</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>
